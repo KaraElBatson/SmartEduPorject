@@ -25,6 +25,9 @@ mongoose.connect(process.env.DB_URL, {
 app.set("view engine","ejs");
 //middlewares
 app.use(express.static("public"));
+app.use(express.json()); // JSON verilerini işlemek için
+app.use(express.urlencoded({ extended: true })); // URL-encoded verileri işlemek için
+
 
 //routes
 app.use('/',pageRoute);
@@ -32,5 +35,5 @@ app.use('/courses', courseRoute);
 
 const port =3000;
 app.listen(port, ()=>{
-  console.log(`App satrted on port ${port}`)
+  console.log(`App started on port ${port}`)
 });
