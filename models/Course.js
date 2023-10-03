@@ -1,34 +1,45 @@
+// model olusturmak icin mongoose kutuphanesi ice aktarildi
 const mongoose = require('mongoose');
-const slugify = require('slugify');
+// schema nesnesi olusturuldu
 const Schema = mongoose.Schema;
 
+// slugify ile url de id yerine slug ifadeleri olusturulur
+const slugify = require('slugify');
 
-const courseSchema = new Schema({
-    name: {
-        type: String,
-        unique: true,
-        require:true
-    },
-    description: {
-        type: String,
-        require:true
-    },
-    createdAt: {
-        type: Date,
-        default:Date.now
-    },
-    slug: {
-        type:String,
-        unique: true
-      }
+// nesne uzerinden cours sablonu olusturuldu
+const CourseSchema = new Schema({
+  // isim aciklama ve tarih degerlerini aldi
+  name: {
+    // suslu parantez ile obje olmasi saglandi
+    // icerik string benzersiz ve doldurulmasi gerekli ozellikleri eklendi
+    type: String,
+    unique: true,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  slug: {
+    type: String,
+    unique: true,
+  },
 });
-CourseSchema.pre('validate', function(next){
-    this.slug = slugify(this.name, {
-      lower:true,
-      strict:true
-    })
-    next();
-  })
 
-const Course = mongoose.model('Course', courseSchema);
+CourseSchema.pre('validate', function (next) {
+  this.slug = slugify(this.name, {
+    lower: true,
+    strict: true,
+  });
+  next();
+});
+
+// olusturulan sablonun modele cevrilmesi saglandi
+const Course = mongoose.model('Course', CourseSchema);
+// modeli disa aktarilmasi saglandi
 module.exports = Course;
