@@ -5,7 +5,7 @@ const {route} = require('./pageRoute');
 
 const router =express.Router();
 
-
+router.route('/').get(courseController.getAllCourses);
 router.route('/').post(courseController.createCourse);
 
 
