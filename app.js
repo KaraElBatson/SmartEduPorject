@@ -4,9 +4,11 @@ const dotnev = require('dotenv').config()
 
 const pageRoute = require('./routes/pageRoute');
 const courseRoute = require ('./routes/courseRoute');
+// category route
+const categoryRoute = require('./routes/categoryRoute');
 
 const app = express();
-
+mongoose.set('strictQuery', false);
 //Connect DB
 mongoose.connect(process.env.DB_URL, {
     useNewUrlParser: true,
@@ -32,6 +34,7 @@ app.use(express.urlencoded({ extended: true })); // URL-encoded verileri işleme
 //routes
 app.use('/',pageRoute);
 app.use('/courses', courseRoute);
+app.use('/categories', categoryRoute);
 
 const port =3000;
 app.listen(port, ()=>{

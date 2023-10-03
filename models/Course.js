@@ -29,19 +29,11 @@ const CourseSchema = new Schema({
     type: String,
     unique: true,
   },
+  // kategori secimi category modeli uzerinden olusturuldu
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+  },
 });
 
 // error function this desteklemez bu yuzden function kullanildi
-// semaya pre ile eklenen slugin name degeri ile slug olusturmasi saglandi
-// middleware bitince yeni middlewarein eklenmesi saglandi
-CourseSchema.pre('validate', function (next) {
-  this.slug = slugify(this.name, {
-    lower: true,
-    strict: true,
-  });
-  next();
-});
-// olusturulan sablonun modele cevrilmesi saglandi
-const Course = mongoose.model('Course', CourseSchema);
-// modeli disa aktarilmasi saglandi
-module.exports = Course;

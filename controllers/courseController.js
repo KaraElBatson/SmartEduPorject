@@ -1,4 +1,5 @@
 // olusturulan model ice aktarildi
+const Category = require('../models/Category');
 const Course = require('../models/Course');
 // model uzerinden yeni veri olusturulup veri tabanina eklendi
 exports.createCourse = async (req, res) => {
@@ -23,16 +24,40 @@ exports.createCourse = async (req, res) => {
 // tum kurslari veri tabanindan cekip gererkli sayfaya yonlendirilmesi icin fonksiyon
 exports.getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find();
-    // res.status(200).json({
-    //   status: 'success',
-    //   courses,
-    // });
+    // queryden categories karsiligi alindi
+    const categorySlug = req.query.categories;
+    
+    // category veritabanindan slug degeri queryden alinan category degeri olan veri ile filtrelendi
+    const category = await Category.findOne({ slug: categorySlug });
+    const query = req.query.search;
+
+    // verileri cekerken katergoriye gore filtreleme yapilasmi icin filtre olusturuldu
+    let filter = {};
+
+    // eger category secilmisse filtre dolduruldu secilmemisse boş kalmasi saglandi
+    if (categorySlug) {
+      filter = { category: category._id };
+    }
+
+    // kurslar filtreleme işlemi ile alındı
+    const courses = await Course.find({
+      $or:[
+        {name: { $regex: '.*' + filter.name + '.*', $options: 'i'}},
+        {category: filter.category}
+      ]
+    }).sort('-createdAt').populate('user');
+    // kategoriler alindi
+    const categories = await Category.find();
+    // kurs sayfasina yonlendirildi
+
     res.status(200).render('courses', {
       courses,
+      categories,
       page_name: 'courses',
     });
   } catch (error) {
+    console.log('hata');
+    console.log(error);
     res.status(400).json({
       status: 'fail',
       error,
