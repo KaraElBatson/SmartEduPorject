@@ -19,7 +19,8 @@ exports.createCourse = async (req, res) => {
 
 exports.getAllCourses = async (req, res) => {
   try {
-    const courses = await Course.find();
+    
+const courses = await Course.find().sort({ createdAt: -1 });
 
     res.status(200).render('courses', {
       courses,
