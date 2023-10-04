@@ -26,7 +26,7 @@ exports.getAllCourses = async (req, res) => {
   try {
     // queryden categories karsiligi alindi
     const categorySlug = req.query.categories;
-    
+
     // category veritabanindan slug degeri queryden alinan category degeri olan veri ile filtrelendi
     const category = await Category.findOne({ slug: categorySlug });
     const query = req.query.search;
@@ -40,12 +40,14 @@ exports.getAllCourses = async (req, res) => {
     }
 
     // kurslar filtreleme işlemi ile alındı
-    const courses = await Course.find({
-      $or:[
-        {name: { $regex: '.*' + filter.name + '.*', $options: 'i'}},
-        {category: filter.category}
-      ]
-    }).sort('-createdAt').populate('user');
+    const courses = await Course.findOne({
+      $or: [
+        { name: { $regex: '.*' + filter.name + '.*', $options: 'i' } },
+        { category: filter.category },
+      ],
+    })
+      .sort('-createdAt')
+      .populate('user');
     // kategoriler alindi
     const categories = await Category.find();
     // kurs sayfasina yonlendirildi
@@ -56,7 +58,6 @@ exports.getAllCourses = async (req, res) => {
       page_name: 'courses',
     });
   } catch (error) {
-    console.log('hata');
     console.log(error);
     res.status(400).json({
       status: 'fail',
