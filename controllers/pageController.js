@@ -10,11 +10,13 @@ exports.getRegisterPage = (req,res)=>{
   });
 }
 
+// login page
 exports.getLoginPage = (req, res) => {
-  res.status(200).render('login', {
-    page_name: 'login',
+  res.render('Login', {
+    page_name: 'Login',
   });
 };
+
 exports.getAboutPage = (req,res)=>{
   res.status(200).render ('about',{
       page_name: "about"
