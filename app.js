@@ -2,6 +2,7 @@ const express = require ('express');
 const mongoose = require('mongoose');
 const dotnev = require('dotenv').config()
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 
 const categoryRoute = require('./routes/categoryRoute');
@@ -44,6 +45,8 @@ app.use(
     secret: 'my_keyboard_cat',
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: 'mongodb+srv://KaraElBatson:KaraElBatson@cluster0.oemvjyr.mongodb.net/?retryWrites=true&w=majority' })
+
   })
 );
 
