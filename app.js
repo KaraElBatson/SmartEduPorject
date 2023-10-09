@@ -1,12 +1,13 @@
 const express = require ('express');
 const mongoose = require('mongoose');
 const dotnev = require('dotenv').config()
+const session = require('express-session');
 
-const pageRoute = require('./routes/pageRoute');
-const courseRoute = require ('./routes/courseRoute');
-// category route
+
 const categoryRoute = require('./routes/categoryRoute');
 const userRoute = require('./routes/userRoute');
+const pageRoute = require('./routes/pageRoute');
+const courseRoute = require ('./routes/courseRoute');
 
 const app = express();
 mongoose.set('strictQuery', false);
@@ -26,13 +27,36 @@ mongoose.connect(process.env.DB_URL, {
 
 //template engine
 app.set("view engine","ejs");
+
+// global degisken olusturuldu
+// kullanici giri yapmis ise gerekli goruntunun yapilmasi saglandi
+global.userIn = null;
+
 //middlewares
 app.use(express.static("public"));
+
 app.use(express.json()); // JSON verilerini işlemek için
 app.use(express.urlencoded({ extended: true })); // URL-encoded verileri işlemek için
 
+// session middleware
+app.use(
+  session({
+    secret: 'my_keyboard_cat',
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
 
 //routes
+// istegine karsilik pageroute fonksiyonuna gidilmesi saglandi
+// bu fonksiyon da express uzerinden olusturulan pageroute pagecontrollerdaki fonksiyonlari calistirir
+// her sayfaya geciste userin tanimlamasi saglandi
+// bu sayede kullanici var ise belirli tasarim yok ise belirli tasarim saglanacaktir
+app.use('*', (req, res, next) => {
+  userIn = req.session.userID;
+  next();
+});
 app.use('/',pageRoute);
 app.use('/courses', courseRoute);
 app.use('/categories', categoryRoute);
