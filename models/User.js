@@ -16,6 +16,12 @@ const UserSchema = new Schema({
   password: {
       type:String,
       required: true
+  },
+  // kullanici rolu eklendi enum icerisinden secilir varsayilan olarak student secilidir
+  role: {
+    type: String,
+    enum: ['student', 'teacher', 'admin'],
+    default: 'student',
   }
 });
 
