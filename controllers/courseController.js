@@ -1,17 +1,20 @@
 // olusturulan model ice aktarildi
 const Category = require('../models/Category');
 const Course = require('../models/Course');
+const User = require('../models/User');
 // model uzerinden yeni veri olusturulup veri tabanina eklendi
 exports.createCourse = async (req, res) => {
   // durumun calisip calismadigi icin durum kontrolu yapildi
   try {
     // eklenecek veri olarak istekten gelen body alindi
-    const course = await Course.create(req.body);
-    // eger basarili ise json dosyasinda icerik ve basarili durum gonderildi
-      // res.status(201).json({
-    //   status: 'success',
-    //   course,
-    // });
+     // kurs olusturulurken name description category ve user bilgisi ile olusturuldu
+    // bunun nedeni kursu kimin olusturdugunu bilmektir
+    const course = await Course.create({
+      name: req.body.name,
+      description: req.body.description,
+      category: req.body.category,
+      user: req.session.userID,
+    });
     res.status(201).redirect('/courses');
   } catch (error) {
     // eger hata varsa error gonderildi
