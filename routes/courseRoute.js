@@ -6,6 +6,8 @@ const router = express.Router();
 router.route('/').post(roleMiddleware(["student", "teacher"]),courseController.createCourse);
 router.route('/').get(courseController.getAllCourses);
 router.route('/:slug').get(courseController.getCourse);
+// ogrencinin kurs almasi
+router.route('/enroll').post(courseController.enrollCourse);
 
 
 module.exports= router;

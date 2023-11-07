@@ -22,7 +22,15 @@ const UserSchema = new Schema({
     type: String,
     enum: ['student', 'teacher', 'admin'],
     default: 'student',
-  }
+  },
+   // kullanicinin kayitli oldugu kurslar icin liste olusturuldu
+   courses: [
+    {
+      // eleman olarak obje ve referans olarak kursu aldi
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course',
+    },
+  ],
 });
 
 UserSchema.pre('save', function (next){
