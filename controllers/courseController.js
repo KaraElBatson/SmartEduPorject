@@ -66,7 +66,7 @@ exports.getCourse = async (req, res) => {
     // kurs sayfasi slug ile bulundu slugify paketi ile database e kaydedilen veri de slug otomaik olusturuldu
     const course = await Course.findOne({
       slug: req.params.slug,
-    });
+    }).populate('user');
     res.status(200).render('course', {
       course,
       page_name: 'courses',
