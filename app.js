@@ -1,3 +1,4 @@
+const flash = require('connect-flash');
 const express = require ('express');
 const mongoose = require('mongoose');
 const dotnev = require('dotenv').config()
@@ -35,7 +36,7 @@ global.userIn = null;
 
 //middlewares
 app.use(express.static("public"));
-
+app.use(flash());
 app.use(express.json()); // JSON verilerini işlemek için
 app.use(express.urlencoded({ extended: true })); // URL-encoded verileri işlemek için
 
