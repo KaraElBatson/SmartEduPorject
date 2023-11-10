@@ -2,22 +2,25 @@ const User = require('../models/User');
 const Category = require('../models/Category');
 const bcrypt = require('bcrypt');
 const Course = require('../modals/Course');
+const { validationResult } = require('express-validator');
 
 exports.createUser = async (req, res) => {
   try {
     const user = await User.create(req.body);
-    res.status(201).json({
-      status: 'succes',
-      user,
-    });
+
+    res.status(201).redirect('/login');
   } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: 'fail',
-      error,
-    });
+    const errors = validationResult(req);
+    console.log(errors);
+    console.log(errors.array()[0].msg);
+//oluşan tüm hataları uyarma
+     for (let i = 0; i < errors.array().length; i++) {
+      req.flash('error', `${errors.array()[i].msg}`);
+    }
+    res.status(400).redirect('/register');
   }
 };
+
 
 exports.LoginUser = async (req, res) => {
   try {
@@ -25,6 +28,7 @@ exports.LoginUser = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (user) {
+      //email önceden kayıtlımı control
       bcrypt.compare(password, user.password, (err, same) => {
         if (same) {
           // user sessions
@@ -42,29 +46,52 @@ exports.LoginUser = async (req, res) => {
     });
   }
 };
-exports.logoutUser = (req, res) => {
-  req.session.destroy(()=> {
-    res.redirect('/');
-  })
-}
-// dashboard sayfasina gitmek icin fonksiyon
-exports.getDashboardPage = async (req, res) => {
-   // dashborad sayfasinda ogrencinin kayitli oldugu kurslar ogrenci tablosunda eleman olarak referansı kurs olan veri eklenmisti
-  // bu sayede populate ile refereans uzerinden course tablosuna erisilerek islem yapilabilir
-  const user = await User.findOne({
-    _id: req.session.userID,
-  }).populate('courses');
 
-  // kategoriler alindi
-  const categories = await Category.find();
-    // aktif olan kullanicinin kurslari secildi ve bunların gosterilmesi saglandi
-    const courses = await Course.find({
-      user: req.session.userID,
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    //mongoose 6
+    const user = await User.findOne({ email });
+    if (user) {
+      bcrypt.compare(password, user.password, (err, same) => {
+        if (same) {
+          // USER SESSION
+          req.session.userID = user._id;
+          res.status(200).redirect('/users/dashboard');
+        } else {
+          req.flash('error', 'Your password is not correct!');
+          res.status(400).redirect('/login');
+        }
+      });
+    } else {
+      req.flash('error', 'User is not exist!');
+      res.status(400).redirect('/login');
+    }
+  
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      error,
     });
-  res.render('dashboard', {
-    page_name: 'dashboard',
-    user,
-    categories,
-    courses,
-  });
+  }
+};
+
+
+  exports.logoutUser = (req, res) => {
+    req.session.destroy(()=> {
+      res.redirect('/');
+    })
+  }
+  
+  exports.getDashboardPage = async(req,res)=>{
+    const user =await User.findOne({_id:req.session.userID}).populate('courses');
+    const categories = await Category.find();
+    const courses = await Course.find({user:req.session.userID})
+    res.status(200).render ('dashboard',{
+        page_name: "dashboard",
+        user,
+        categories,
+        courses
+    });
 };
