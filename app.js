@@ -1,10 +1,10 @@
-const flash = require('connect-flash');
 const express = require ('express');
 const mongoose = require('mongoose');
-const dotnev = require('dotenv').config()
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const flash = require('connect-flash');
 
+const dotnev = require('dotenv').config()
 
 const categoryRoute = require('./routes/categoryRoute');
 const userRoute = require('./routes/userRoute');
@@ -36,7 +36,6 @@ global.userIn = null;
 
 //middlewares
 app.use(express.static("public"));
-app.use(flash());
 app.use(express.json()); // JSON verilerini işlemek için
 app.use(express.urlencoded({ extended: true })); // URL-encoded verileri işlemek için
 
@@ -50,7 +49,11 @@ app.use(
 
   })
 );
-
+app.use(flash());
+app.use((req,res,next)=>{
+  res.locals.flashMessages = req.flash();
+  next();
+})
 
 //routes
 // istegine karsilik pageroute fonksiyonuna gidilmesi saglandi
