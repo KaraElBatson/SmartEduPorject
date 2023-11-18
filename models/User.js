@@ -1,45 +1,53 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const slugify = require('slugify');
 const Schema = mongoose.Schema;
 
-
 const UserSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-      type:String,
-      required: true
-  },
-  // kullanici rolu eklendi enum icerisinden secilir varsayilan olarak student secilidir
-  role: {
-    type: String,
-    enum: ['student', 'teacher', 'admin'],
-    default: 'student',
-  },
-   // kullanicinin kayitli oldugu kurslar icin liste olusturuldu
-   courses: [
-    {
-      // eleman olarak obje ve referans olarak kursu aldi
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course',
+    name: {
+        type: String,
+        required: true,
     },
-  ],
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    role: {
+        type: String,
+        enum: ["student", "teacher", "admin"],
+        default: "student",
+    },
+    courses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course', // 'Courses' yerine 'Course' olarak düzeltildi
+    }],
 });
-
-UserSchema.pre('save', function (next){
+// mongoose her kullanici islem yapinca sifreyi de yeniden duzenler
+// bu yuzden bunu engellemek amaciyla her defasinda degistirmemesi saglandi
+UserSchema.pre('save', async function (next) {
     const user = this;
-    bcrypt.hash(user.password, 10, (error, hash) => {
+    if (!user.isModified('password')) {
+        return next();
+    }
+
+    try {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(user.password, salt);
         user.password = hash;
-        next();
-    })
-})
+        return next();
+    } catch (error) {
+        return next(error);
+    }
+});
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

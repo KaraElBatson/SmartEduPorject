@@ -4,6 +4,7 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const flash = require('connect-flash');
 
+const methodOverride =require ('method-override')
 const dotnev = require('dotenv').config()
 
 const categoryRoute = require('./routes/categoryRoute');
@@ -54,6 +55,13 @@ app.use((req,res,next)=>{
   res.locals.flashMessages = req.flash();
   next();
 })
+app.use(
+  methodOverride('_method',{
+  methods: ['POST','GET'],
+})
+);
+
+
 
 //routes
 // istegine karsilik pageroute fonksiyonuna gidilmesi saglandi
