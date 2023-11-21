@@ -1,8 +1,10 @@
+const bcrypt = require ('bcrypt');
+const { validationResult } = require('express-validator');
+
 const User = require('../models/User');
 const Category = require('../models/Category');
-const bcrypt = require('bcrypt');
-const Course = require('../modals/Course');
-const { validationResult } = require('express-validator');
+const Course = require('../models/Course');
+
 
 exports.createUser = async (req, res) => {
   try {
@@ -13,7 +15,7 @@ exports.createUser = async (req, res) => {
     const errors = validationResult(req);
     console.log(errors);
     console.log(errors.array()[0].msg);
-//oluşan tüm hataları uyarma
+
      for (let i = 0; i < errors.array().length; i++) {
       req.flash('error', `${errors.array()[i].msg}`);
     }
@@ -21,31 +23,6 @@ exports.createUser = async (req, res) => {
   }
 };
 
-
-exports.LoginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email });
-    if (user) {
-      //email önceden kayıtlımı control
-      bcrypt.compare(password, user.password, (err, same) => {
-        if (same) {
-          // user sessions
-          req.session.userID = user._id;
-
-          res.status(200).redirect('/users/dashboard');
-        }
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(400).json({
-      status: 'fail',
-      error,
-    });
-  }
-};
 
 exports.loginUser = async (req, res) => {
   try {
@@ -68,7 +45,6 @@ exports.loginUser = async (req, res) => {
       req.flash('error', 'User is not exist!');
       res.status(400).redirect('/login');
     }
-  
   } catch (error) {
     res.status(400).json({
       status: 'fail',
@@ -84,30 +60,33 @@ exports.loginUser = async (req, res) => {
     })
   }
   
-  exports.getDashboardPage = async(req,res)=>{
-    const user =await User.findOne({_id:req.session.userID}).populate('courses');
+  exports.getDashboardPage = async (req, res) => {
+    const user = await User.findOne({ _id: req.session.userID }).populate(
+      'courses'
+    );
     const categories = await Category.find();
-    const courses = await Course.find({user:req.session.userID})
-    const users = await User.find({});
-    res.status(200).render ('dashboard',{
-        page_name: "dashboard",
-        user,
-        categories,
-        courses,
-        users
+    const courses = await Course.find({ user: req.session.userID });
+    const users = await User.find();
+    console.log(users.countDocument);
+    res.status(200).render('dashboard', {
+      page_name: 'dashboard',
+      user,
+      categories,
+      courses,
+      users,
     });
-};
-// kullanici silmek icin fonksiyon olusturuldu
-exports.deleteUser = async (req, res) => {
-  try {
-    await User.findByIdAndRemove(req.params.id);
-    await Course.deleteMany({ user: req.params.id });
+  };
 
-    res.status(200).redirect('/users/dashboard');
-  } catch (error) {
-    res.status(400).json({
-      status: 'fail',
-      error,
-    });
-  }
-};
+  exports.deleteUser = async (req, res) => {
+    try {
+      await User.findByIdAndRemove(req.params.id);
+      await Course.deleteMany({ user: req.params.id });
+  
+      res.status(200).redirect('/users/dashboard');
+    } catch (error) {
+      res.status(400).json({
+        status: 'fail',
+        error,
+      });
+    }
+  };
